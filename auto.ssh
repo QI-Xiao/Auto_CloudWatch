@@ -1,0 +1,3 @@
+aws sso login --sso-session ta
+source ./.venv/bin/activate
+python aws_cloudwatch.py

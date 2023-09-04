@@ -13,6 +13,10 @@ def get_all_instance_ids(ec2_client, tag_key_name):
             }
         ]
     )
+
+    if 'NextToken' in response:
+        print('you need consider ec2 pagination')
+
     instance_ids_all = set(i['InstanceId'] for r in response['Reservations'] for i in r['Instances'])
     return instance_ids_all
 
