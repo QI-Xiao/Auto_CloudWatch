@@ -17,7 +17,22 @@ def get_all_instance_ids(ec2_client, tag_key_name):
     if 'NextToken' in response:
         print('you need consider ec2 pagination')
 
-    instance_ids_all = set(i['InstanceId'] for r in response['Reservations'] for i in r['Instances'])
+    instance_ids_all = set()
+
+    # instance_ids_all = set(i['InstanceId'] for r in response['Reservations'] for i in r['Instances'])
+    for r in response['Reservations']:
+        for i in r['Instances']:
+            instance_id = i['InstanceId']
+            instance_ids_all.add(instance_id)
+
+            # find out the terminated instances and terminate them
+            for tag in i['Tags']:
+                if tag['Key'] == 'Name' and tag['Value'].lower() == 'terminate':
+                    print(f"terminate instance of {instance_id}, name: {tag['Value']}")
+
+                    ec2_client.terminate_instances(InstanceIds=[instance_id])
+                    instance_ids_all.remove(instance_id)
+
     return instance_ids_all
 
 
