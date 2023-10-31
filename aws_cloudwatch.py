@@ -1,4 +1,5 @@
 import sys
+import argparse
 import boto3
 
 
@@ -81,7 +82,7 @@ def add_alarm_to_instances(cloudwatch_client, instance_ids):
         )
 
 
-def add_alarms(profile_name, tag_key_name):
+def add_alarms(profile_name, tag_key_name, excluded_instance_ids):
     print(f'start add alarms for {profile_name}')
 
     session = boto3.Session(profile_name=profile_name, region_name='us-east-1')
@@ -97,12 +98,22 @@ def add_alarms(profile_name, tag_key_name):
     instance_ids_no_alarm = instance_ids_all - instance_ids_with_alarm
     print('instance_ids_no_alarm:', instance_ids_no_alarm)
 
-    add_alarm_to_instances(cloudwatch_client, instance_ids_no_alarm)
+    instance_ids_need_alarm = instance_ids_no_alarm - excluded_instance_ids
+    print('instance_ids_need_alarm:', instance_ids_need_alarm)
+
+    add_alarm_to_instances(cloudwatch_client, instance_ids_need_alarm)
 
     print(f'finish add alarms for {profile_name}\n')
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--exclude", type=str, required=False, default='')
+    excluded_instance_str = parser.parse_args().exclude
+
+    excluded_instance_ids = set(excluded_instance_str.split(',')) if excluded_instance_str else set()  # 'i-07cbdf681a26690ad'
+    print('\nexcluded_instance_ids', excluded_instance_ids)
 
     # profile_name1 = sys.argv[1]
     # profile_name2 = sys.argv[2]
@@ -114,6 +125,6 @@ if __name__ == "__main__":
 
     print(profile_name1, profile_name2, tag_key, '\n')
 
-    add_alarms(profile_name1, tag_key)
+    add_alarms(profile_name1, tag_key, excluded_instance_ids)
 
-    add_alarms(profile_name2, tag_key)
+    add_alarms(profile_name2, tag_key, excluded_instance_ids)

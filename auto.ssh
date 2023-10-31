@@ -1,3 +1,3 @@
 aws sso login --sso-session gta
 source ~/PycharmProjects/Auto_CloudWatch/.venv/bin/activate
-python ~/PycharmProjects/Auto_CloudWatch/aws_cloudwatch.py
+python ~/PycharmProjects/Auto_CloudWatch/aws_cloudwatch.py $1
